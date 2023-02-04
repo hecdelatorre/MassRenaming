@@ -1,53 +1,55 @@
 from bullet import Input, colors, YesNo
 from colored import fg, attr
 from os import listdir, rename
-from os.path import isdir, isfile
+from os.path import isdir, isfile, splitext
 from getpass import getuser
 
-colorRed = fg('#CC0000')
-colorGreen = fg('#73D216')
-colorBlue = fg('#338CFF')
-res = attr('reset')
+color_red = fg('#CC0000')
+color_green = fg('#73D216')
+color_blue = fg('#338CFF')
+reset = attr('reset')
 
-def err():
-    print(f'{colorRed}Wrong data{res}')
+def error():
+    print(f'{color_red}Wrong data{reset}')
     exit()
 
-def validateDir(directory): 
-    if not isdir(directory): err()
+def validate_directory(directory): 
+    if not isdir(directory): error()
     else: return directory 
 
-def enterDirectory():
-    directory = Input(f'{colorGreen}Enter the directory {res}', default = f"/home/{getuser()}/Downloads", word_color = colors.foreground["yellow"]).launch()
-    directory = validateDir(directory)
+def enter_directory():
+    directory = Input(f'{color_green}Enter the directory {reset}', default = f"/home/{getuser()}/Downloads", word_color = colors.foreground["yellow"]).launch()
+    directory = validate_directory(directory)
     return directory
 
-def traverseDirectory(directory):
-    newName = Input(f'{colorGreen}Login in new name {res}', default = 'default', word_color = colors.foreground["yellow"]).launch()
-    newExtension = Input(f'{colorGreen}Login in new extension {res}', default = 'default', word_color = colors.foreground["yellow"]).launch()
+def traverse_directory(directory):
+    new_name = Input(f'{color_green}Login in new name {reset}', default = 'default', word_color = colors.foreground["yellow"]).launch()
 
-    directoryArray = listdir(directory)
-    directorys = []
+    directory_array = listdir(directory)
+    directories = []
     
-    print(f'Current name {colorBlue}::{res} New name')
+    print(f'Current name {color_blue}::{reset} New name')
     c = 0
 
-    for dFile in directoryArray: 
-        if isfile(f'{directory}/{dFile}'): 
-            print(f'{dFile} {colorRed}::{res} {newName}-{c}.{newExtension}')
-            c += 1
-            directorys.append(dFile)
+    for d_file in directory_array: 
+        if isfile(f'{directory}/{d_file}'): 
+            ext = splitext(d_file)[1].lower()
+            if ext in ['.jpg', '.jpeg', '.png', '.gif']:
+                print(f'{d_file} {color_red}::{reset} {new_name}-{c}{ext}')
+                c += 1
+                directories.append(d_file)
 
-    return directorys, newName, newExtension
+    return directories, new_name
 
-def renameDirectory(directory, directorys, newName, newExtension):
-    renameQuestion = YesNo(f'{colorGreen}Do you want to rename the folders? {res}', default = 'n', word_color = colors.foreground["yellow"]).launch()
+def rename_directory(directory, directories, new_name):
+    rename_question = YesNo(f'{color_green}Do you want to rename the folders? {reset}', default = 'n', word_color = colors.foreground["yellow"]).launch()
     
-    c=  0
+    c = 0
 
-    if renameQuestion: 
-        for name in directorys: 
-            rename(f'{directory}/{name}', f'{directory}/{newName}-{c}.{newExtension}')
+    if rename_question: 
+        for name in directories: 
+            ext = splitext(name)[1]
+            rename(f'{directory}/{name}', f'{directory}/{new_name}-{c}{ext}')
             c += 1
-        print(f'{colorBlue}Renamed directories{res}')
-    else: print(f'{colorRed}Directories not renamed{res}')
+        print(f'{color_blue}Renamed directories{reset}')
+    else: print(f'{color_red}Directories not renamed{reset}')
